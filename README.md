@@ -1,1 +1,1 @@
-Panacea-Soft Android Init
+The Sable Business Directory Mobile App
