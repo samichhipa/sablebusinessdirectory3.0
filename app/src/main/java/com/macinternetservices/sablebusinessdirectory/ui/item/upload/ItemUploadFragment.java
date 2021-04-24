@@ -4,19 +4,28 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,9 +33,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
 import com.macinternetservices.sablebusinessdirectory.MainActivity;
 import com.macinternetservices.sablebusinessdirectory.R;
 import com.macinternetservices.sablebusinessdirectory.binding.FragmentDataBindingComponent;
+import com.macinternetservices.sablebusinessdirectory.binding.PlaceArrayAdapter;
 import com.macinternetservices.sablebusinessdirectory.databinding.FragmentItemUploadBinding;
 import com.macinternetservices.sablebusinessdirectory.ui.common.DataBoundListAdapter;
 import com.macinternetservices.sablebusinessdirectory.ui.common.PSFragment;
@@ -62,12 +74,13 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
     public String itemName;
     private GoogleMap map;
     private Marker marker;
+    private AutoCompleteTextView search_tx_loc;
 
     @VisibleForTesting
     private AutoClearedValue<FragmentItemUploadBinding> binding;
     private AutoClearedValue<ProgressDialog> progressDialog;
     private AutoClearedValue<ItemEntryImageAdapter> itemEntryImageAdapter;
-
+    private PlaceArrayAdapter mAutoCompleteAdapter;
 
 
     private Calendar dateTime = Calendar.getInstance();
@@ -115,6 +128,8 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
         progressDialog = new AutoClearedValue<>(this, new ProgressDialog(getActivity()));
         progressDialog.get().setMessage(getString(R.string.message__please_wait));
         progressDialog.get().setCancelable(false);
+
+
 
         // click save button
         binding.get().saveButton.setOnClickListener(v -> {
@@ -173,8 +188,83 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                 "", Constants.IMAGE_UPLOAD_ITEM, itemViewModel.itemSelectId));
 
         binding.get().viewAllTextView.setOnClickListener(v -> navigationController.navigateToImageList(getActivity(), itemViewModel.itemSelectId));
+
+
+        Places.initialize(getContext(), getResources().getString(R.string.google_map_api_key));
+        mAutoCompleteAdapter=new PlaceArrayAdapter(getContext(), android.R.layout.simple_spinner_dropdown_item);
+        binding.get().txtAutocomplete.setAdapter(mAutoCompleteAdapter);
+        binding.get().txtAutocomplete.setThreshold(3);//start searching from 1 character
+        binding.get().txtAutocomplete.setAdapter(mAutoCompleteAdapter);
+
+        binding.get().txtAutocomplete.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("Address : ", binding.get().txtAutocomplete.getText().toString());
+                LatLng latLng=getLatLngFromAddress( binding.get().txtAutocomplete.getText().toString());
+                if(latLng!=null) {
+                    Log.d("Lat Lng : ", " " + latLng.latitude + " " + latLng.longitude);
+                    Address address=getAddressFromLatLng(latLng);
+                    if(address!=null) {
+                        Log.d("Address : ", "" + address.toString());
+                        Log.d("Address Line : ",""+address.getAddressLine(0));
+                        Log.d("Phone : ",""+address.getPhone());
+                        Log.d("Pin Code : ",""+address.getPostalCode());
+                        Log.d("Feature : ",""+address.getFeatureName());
+                        Log.d("More : ",""+address.getLocality());
+                    }
+                    else {
+                        Log.d("Adddress","Address Not Found");
+                    }
+                }
+                else {
+                    Log.d("Lat Lng","Lat Lng Not Found");
+                }
+            }
+        });
+
+    }
+    private Address getAddressFromLatLng(LatLng latLng){
+        Geocoder geocoder=new Geocoder(getContext());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 5);
+            if(addresses!=null){
+                Address address=addresses.get(0);
+                return address;
+            }
+            else{
+                return null;
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
+    private LatLng getLatLngFromAddress(String address){
+
+        Geocoder geocoder=new Geocoder(getContext());
+        List<Address> addressList;
+
+        try {
+            addressList = geocoder.getFromLocationName(address, 1);
+            if(addressList!=null){
+                Address singleaddress=addressList.get(0);
+                LatLng latLng=new LatLng(singleaddress.getLatitude(),singleaddress.getLongitude());
+                return latLng;
+            }
+            else{
+                return null;
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
+    }
     @Override
     protected void initViewModels() {
         itemViewModel = new ViewModelProvider(this, viewModelFactory).get(ItemViewModel.class);
@@ -918,6 +1008,8 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
             Utils.psErrorLog("", e);
         }
     }
+
+
 
     private class GeoCoderHandler extends Handler {
         @Override

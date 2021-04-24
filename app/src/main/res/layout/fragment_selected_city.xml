@@ -632,7 +632,7 @@
                 android:tint="@color/md_white_1000"
                 app:backgroundTint="@color/global__primary"
                 app:fabSize="normal"
-                app:layout_behavior="@string/floating_button_behaviour"
+
                 />
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
