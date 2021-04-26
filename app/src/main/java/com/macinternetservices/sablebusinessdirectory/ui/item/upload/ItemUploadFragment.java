@@ -210,6 +210,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                         Log.d("Phone : ",""+address.getPhone());
                         Log.d("Pin Code : ",""+address.getPostalCode());
                         Log.d("Feature : ",""+address.getFeatureName());
+
                         Log.d("More : ",""+address.getLocality());
                     }
                     else {
@@ -384,7 +385,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                             binding.get().phoneTwoTextView.setText(result.data.phone2);
                             binding.get().phoneThreeTextView.setText(result.data.phone3);
                             binding.get().emailTextView.setText(result.data.email);
-                            binding.get().addressTextView.setText(result.data.address);
+                            binding.get().txtAutocomplete.setText(result.data.address);
                             binding.get().facebookTextView.setText(result.data.facebook);
                             binding.get().googlePlusTextView.setText(result.data.google_plus);
                             binding.get().twitterTextView.setText(result.data.twitter);
@@ -482,7 +483,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                             binding.get().phoneTwoTextView.setText(result.data.phone2);
                             binding.get().phoneThreeTextView.setText(result.data.phone3);
                             binding.get().emailTextView.setText(result.data.email);
-                            binding.get().addressTextView.setText(result.data.address);
+                            binding.get().txtAutocomplete.setText(result.data.address);
                             binding.get().facebookTextView.setText(result.data.facebook);
                             binding.get().googlePlusTextView.setText(result.data.google_plus);
                             binding.get().twitterTextView.setText(result.data.twitter);
@@ -643,7 +644,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                             itemViewModel.savedPhoneTwo = binding.get().phoneTwoTextView.getText().toString();
                             itemViewModel.savedPhoneThree = binding.get().phoneThreeTextView.getText().toString();
                             itemViewModel.savedEmail = binding.get().emailTextView.getText().toString();
-                            itemViewModel.savedAddress = binding.get().addressTextView.getText().toString();
+                            itemViewModel.savedAddress = binding.get().txtAutocomplete.getText().toString();
                             itemViewModel.savedFacebook = binding.get().facebookTextView.getText().toString();
                             itemViewModel.savedGooglePlus = binding.get().googlePlusTextView.getText().toString();
                             itemViewModel.savedTwitter = binding.get().twitterTextView.getText().toString();
@@ -724,7 +725,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
 
     private void saveItem() {
 
-        locationAddress.getAddressFromLocation(binding.get().addressTextView.getText().toString(), getApplicationContext(), new
+        locationAddress.getAddressFromLocation(binding.get().txtAutocomplete.getText().toString(), getApplicationContext(), new
                 GeoCoderHandler());
 
         String checkedPromotion;
@@ -769,7 +770,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                 binding.get().phoneTwoTextView.getText().toString(),
                 binding.get().phoneThreeTextView.getText().toString(),
                 binding.get().emailTextView.getText().toString(),
-                binding.get().addressTextView.getText().toString(),
+                binding.get().txtAutocomplete.getText().toString(),
                 binding.get().facebookTextView.getText().toString(),
                 binding.get().googlePlusTextView.getText().toString(),
                 binding.get().twitterTextView.getText().toString(),
@@ -827,7 +828,7 @@ public class ItemUploadFragment extends PSFragment implements DataBoundListAdapt
                 !binding.get().phoneTwoTextView.getText().toString().equals(itemViewModel.savedPhoneTwo) ||
                 !binding.get().phoneThreeTextView.getText().toString().equals(itemViewModel.savedPhoneThree) ||
                 !binding.get().emailTextView.getText().toString().equals(itemViewModel.savedEmail) ||
-                !binding.get().addressTextView.getText().toString().equals(itemViewModel.savedAddress) ||
+                !binding.get().txtAutocomplete.getText().toString().equals(itemViewModel.savedAddress) ||
                 !binding.get().facebookTextView.getText().toString().equals(itemViewModel.savedFacebook) ||
                 !binding.get().googlePlusTextView.getText().toString().equals(itemViewModel.savedGooglePlus) ||
                 !binding.get().twitterTextView.getText().toString().equals(itemViewModel.savedTwitter) ||

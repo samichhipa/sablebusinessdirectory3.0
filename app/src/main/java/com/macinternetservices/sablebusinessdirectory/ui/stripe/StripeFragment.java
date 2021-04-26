@@ -124,7 +124,6 @@ public class StripeFragment extends PSFragment {
 
         if(getActivity() != null) {
             navigationController.navigateBackToCheckoutFragment(getActivity(), token);
-
             getActivity().finish();
         }
     }

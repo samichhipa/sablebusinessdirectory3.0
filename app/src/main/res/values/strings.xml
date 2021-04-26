@@ -493,6 +493,15 @@
     <!--City List-->
 
 
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="geofence_too_many_geofences">App registered too many geofences</string>
+    <string name="geofence_too_many_pending_intents">Too many PendingIntents provided</string>
+    <string name="unknown_geofence_error">Unknown error</string>
+    <string name="geofences_added">Geofences added</string>
+    <string name="geofences_removed">Geofences removed</string>
+
+
+
     <!--Setting -->
     <string name="setting__clear_cache_confirm">Are you sure to clear image cache?</string>
     <string name="setting__clear_image_cache">Clear Image Cache</string>

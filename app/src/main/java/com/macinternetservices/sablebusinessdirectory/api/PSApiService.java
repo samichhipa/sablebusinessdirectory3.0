@@ -25,6 +25,7 @@ import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -34,9 +35,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 
-/**
- * REST API access points
- */
+
 public interface PSApiService {
 
     //region Get favourite product list
@@ -400,6 +399,12 @@ public interface PSApiService {
             @Field("is_paid") String isPaid,
             @Field("item_status_id") String status);
 
+    @FormUrlEncoded
+    @POST("rest/items/search/api_key/{API_KEY}/limit/{limit}/offset/{offset}/login_user_id/{login_user_id}")
+    Call<ResponseBody> GetOnlyItems(@Path("API_KEY") String API_KEY,
+                                                @Path("limit") String limit,
+                                                @Path("offset") String offset,
+                                                @Path("login_user_id") String login_user_id, @Field("keyword") String keyword);
 
     //endregion
 

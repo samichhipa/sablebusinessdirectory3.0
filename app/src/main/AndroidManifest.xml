@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -294,6 +296,27 @@
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
+        </service>
+
+        <service
+            android:name=".utils.GeofenceReceiver"
+            android:exported="false"
+            android:enabled="true">
+        </service>
+
+        <receiver
+            android:name=".utils.GeofenceReceiver"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="me.hoen.geofence_21.ACTION_RECEIVE_GEOFENCE" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:enabled="true"
+            android:name=".utils.GeolocationService"
+            >
+            <!--        android:label="@string/app_name"-->
         </service>
 
         <uses-library

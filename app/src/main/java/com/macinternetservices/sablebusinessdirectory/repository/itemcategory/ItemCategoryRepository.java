@@ -138,7 +138,6 @@ public class ItemCategoryRepository extends PSRepository {
 
                 appExecutors.diskIO().execute(() -> {
 
-
                     try {
                         db.runInTransaction(() -> {
 

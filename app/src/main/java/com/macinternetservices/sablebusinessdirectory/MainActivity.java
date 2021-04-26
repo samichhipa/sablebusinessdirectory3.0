@@ -1,11 +1,20 @@
 package com.macinternetservices.sablebusinessdirectory;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
@@ -17,6 +26,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -41,6 +52,7 @@ import com.macinternetservices.sablebusinessdirectory.ui.common.PSAppCompactActi
 import com.macinternetservices.sablebusinessdirectory.ui.dashboard.DashBoardCityListFragment;
 import com.macinternetservices.sablebusinessdirectory.utils.AppLanguage;
 import com.macinternetservices.sablebusinessdirectory.utils.Constants;
+import com.macinternetservices.sablebusinessdirectory.utils.GeolocationService;
 import com.macinternetservices.sablebusinessdirectory.utils.MyContextWrapper;
 import com.macinternetservices.sablebusinessdirectory.utils.PSDialogMsg;
 import com.macinternetservices.sablebusinessdirectory.utils.Utils;
@@ -77,6 +89,9 @@ public class MainActivity extends PSAppCompactActivity {
     private Boolean notiSetting = false;
     private String token = "";
     private UserViewModel userViewModel;
+
+    LocationManager locationManager;
+    Location location;
 
     private NotificationViewModel notificationViewModel;
     private User user;
@@ -115,7 +130,8 @@ public class MainActivity extends PSAppCompactActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         FirebaseApp.initializeApp(this);
-
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         initUIAndActions();
 
         initModels();
@@ -147,12 +163,74 @@ public class MainActivity extends PSAppCompactActivity {
         }
 
     }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     protected void onResume() {
+        int PERMISSION_ALL = 1;
+        String[] PERMISSIONS = {
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        };
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if(hasPermissions(this, PERMISSIONS)) {
+
+                if (!isMyServiceRunning(GeolocationService.class)) {
+                    startService(new Intent(MainActivity.this, GeolocationService.class));
+                }
+            }else{
+                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+
+            }
+
+        } else {
+            buildAlertMessageNoGps();
+        }
+
         super.onResume();
     }
 
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                        buildAlertMessageNoGps();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {

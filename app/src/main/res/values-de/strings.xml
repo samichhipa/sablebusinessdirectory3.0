@@ -490,4 +490,13 @@
     <string name="paid__ads_is_not_yet_start">Anzeigen sind noch nicht starten</string>
     <string name="paid__sponsored">gesponserte</string>
 
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="geofence_too_many_geofences">App registered too many geofences</string>
+    <string name="geofence_too_many_pending_intents">Too many PendingIntents provided</string>
+    <string name="unknown_geofence_error">Unknown error</string>
+    <string name="geofences_added">Geofences added</string>
+    <string name="geofences_removed">Geofences removed</string>
+
+
+
 </resources>
