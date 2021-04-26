@@ -130,8 +130,7 @@ public class MainActivity extends PSAppCompactActivity {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         FirebaseApp.initializeApp(this);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
         initUIAndActions();
 
         initModels();
@@ -175,28 +174,30 @@ public class MainActivity extends PSAppCompactActivity {
 
     @Override
     protected void onResume() {
-        int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-        };
+        if (!pref.getString(Constants.USER_ID, Constants.EMPTY_STRING).isEmpty()) {
+            int PERMISSION_ALL = 1;
+            String[] PERMISSIONS = {
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            };
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if(hasPermissions(this, PERMISSIONS)) {
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (hasPermissions(this, PERMISSIONS)) {
 
-                if (!isMyServiceRunning(GeolocationService.class)) {
-                    startService(new Intent(MainActivity.this, GeolocationService.class));
+                    if (!isMyServiceRunning(GeolocationService.class)) {
+                        startService(new Intent(MainActivity.this, GeolocationService.class));
+                    }
+                } else {
+                    ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+
                 }
-            }else{
-                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
 
+            } else {
+                buildAlertMessageNoGps();
             }
-
-        } else {
-            buildAlertMessageNoGps();
         }
 
         super.onResume();
